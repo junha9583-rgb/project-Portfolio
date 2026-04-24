@@ -1,23 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import Header from './component/Header';
+import HeroSection from './component/HeroSection';
+// import ReasonSection from './component/ReasonSection';
+// import ReviewSection from './component/ReviewSection';
+// import AuditSection from './component/AuditSection';
+// import BeforeSection from './component/BeforeSection';
+// import AfterSection from './component/AfterSection';
+// import NetflixSection from './component/NetflixSection';
+// import EtcSection from './component/EtcSection';
+// import EpilogueSection from './component/EpilogueSection';
+// import Footer from './component/Footer';
+import { GlobalStyle } from './style/GlobalStyle';
+// import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="all-wrap">
+      <GlobalStyle />
+      <Header />
+      <HeroSection />
+      {/* <ReasonSection /> */}
+      {/* <ReviewSection /> */}
+      {/* <AuditSection /> */}
+      {/* <BeforeSection /> */}
+      {/* <AfterSection /> */}
+      {/* <NetflixSection /> */}
+      {/* <EtcSection /> */}
+      {/* <EpilogueSection /> */}
+      {/* <Footer /> */}
     </div>
   );
 }
