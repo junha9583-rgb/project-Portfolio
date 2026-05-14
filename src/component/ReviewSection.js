@@ -29,7 +29,7 @@ function ReviewSection() {
 
             <ReviewCard className="card-2">
               <h3>로딩하다가 시간 다 가요</h3>
-              <StarImage src="/image/2stars.png" alt="rating" />
+              <StarImage src="./image/2stars.png" alt="rating" />
               <p>
                 사진 하나 뜨는 데 너무 오래 걸려요. <br />
                 장바구니 담을 때 멈춤 현상이 있어요.
