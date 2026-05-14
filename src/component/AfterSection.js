@@ -1,170 +1,294 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { gsap } from "gsap"; // 나중에 애니메이션 구현 시 주석 해제
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap } from "gsap";
 
 const AfterSectionWrapper = styled.section`
   width: 100%;
-  background-color: #000; /* Before 섹션과 동일한 블랙 배경 */
-  overflow: hidden;
-  position: relative;
+  background-color: #000;
 
-  .trigger-container {
-    width: 100%;
-    height: 400vh; /* 애니메이션 길이. 스크롤을 많이 하도록 길게 잡음 */
-  }
-
-  .sticky-wrapper {
+  .sticky-viewport {
     position: sticky;
     top: 0;
     width: 100%;
     height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     overflow: hidden;
   }
 
-  .build-stage {
-    position: relative;
-    width: 1600px; /* 개선된 디자인 스크린샷의 가로 너비 */
-    height: 100%; /* 화면 높이에 맞춤 */
-    max-height: 900px; /* 너무 커지는 것 방지 */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
   }
 
-  /* 레고 파트 공통 스타일 */
-  .build-item {
-    position: absolute;
-    width: 100%;
-    left: 0;
-    opacity: 0; /* 초기값 투명 */
-    transform: translateY(100vh); /* 초기값 화면 밑에 대기 */
-    z-index: 1;
-    transition: box-shadow 0.3s ease;
+  .slide.active { pointer-events: auto; }
 
-    img {
-      width: 100%;
-      display: block;
+  .slide img {
+    width: 100%;
+    max-width: 1400px;
+    max-height: 90vh;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 0 20px rgba(255,255,255,0.2))
+            drop-shadow(0 10px 40px rgba(255,255,255,0.1));
+  }
+
+  .desc-box {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(8, 8, 12, 0.82);
+    backdrop-filter: blur(12px);
+    border-top: 3px solid #e63946;
+    padding: 18px 500px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    z-index: 10;
+
+    .slide-num {
+      font-size: 42px;
+      font-weight: 800;
+      color: #e63946;
+      line-height: 1;
+      min-width: 52px;
+      letter-spacing: -2px;
+    }
+
+    .divider {
+      width: 1px;
+      height: 100px;
+      background: rgba(255,255,255,0.15);
+      flex-shrink: 0;
+    }
+
+    .text {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex: 1;
+      h4 {
+        font-size: 30px;
+        font-weight: 600;
+        color: #fff;
+        margin: 0 0 5px;
+        word-break: keep-all;
+      }
+      ul {
+        margin: 0;
+        padding: 0 80px;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        li {
+          font-size: 20px;
+          color: rgba(255,255,255,0.55);
+          position: relative;
+          padding-left: 20px;
+          word-break: keep-all;
+          &::before {
+            content: "–";
+            position: absolute;
+            left: 0;
+            color: #e63946;
+          }
+        }
+      }
+    }
+
+    .total {
+      font-size: 16px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 1px;
+      flex-shrink: 0;
     }
   }
 
-  /* 각 파트별 수직 최종 위치 (디자인에 맞춰 미세조정) */
-  .part-header { top: 0; z-index: 2; }
-  .part-atelier { top: 25%; }
-  .part-data { top: 55%; }
-  .part-footer { bottom: 0; }
-
-  /* 설명 박스 스타일 (Before 섹션과 일체감 유지) */
-  .desc-box {
+  .indicator {
     position: absolute;
-    width: 320px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    z-index: 10;
-    opacity: 0; /* 초기값 투명 */
-    color: white;
-
-    h4 { font-size: 1.1rem; margin-bottom: 10px; color: #fff; }
-    ul, li { font-size: 0.9rem; color: #ccc; list-style: none; }
+    right: 28px;
+    top: 44%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
   }
 
-  /* 설명 박스 위치 지정 */
-  .left-top { left: -380px; top: 10%; }
-  .right-top { right: -380px; top: 30%; }
-  .left-bottom { left: -380px; bottom: 30%; }
-  .right-bottom { right: -380px; bottom: 10%; }
+  .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    transition: background 0.3s, transform 0.3s;
+    cursor: pointer;
+  }
+
+  .dot.active {
+    background: #e63946;
+    transform: scale(1.5);
+  }
 `;
 
-function AfterSection() {
-  // GSAP 애니메이션을 위한 Ref 이름표들
-  const sectionRef = useRef(null);
-  const triggerRef = useRef(null);
-  const item1Ref = useRef(null); // 헤더/비주얼
-  const item2Ref = useRef(null); // 디지털 아틀리에
-  const item3Ref = useRef(null); // 데이터 맥락화
-  const item4Ref = useRef(null); // 네비게이션
-  const box1Ref = useRef(null);
-  const box2Ref = useRef(null);
-  const box3Ref = useRef(null);
-  const box4Ref = useRef(null);
+const partData = [
+  { id: 1, src: "/image/after-part1.png", title: "브릭 아이덴티티 반영",  desc: ["레고 결합 모티프를 UI에 적용", "브랜드 개성 및 몰입도 강화"] },
+  { id: 2, src: "/image/after-part2.png", title: "디지털 아틀리에",       desc: ["스토리텔링형 제품 배치", "작품성을 강조한 비주얼"] },
+  { id: 3, src: "/image/after-part3.png", title: "인터랙티브 요소",       desc: ["마우스 호버 시 브릭 애니메이션", "생동감 넘치는 사용자 경험"] },
+  { id: 4, src: "/image/after-part4.png", title: "데이터 맥락화",         desc: ["Best/New 섹션의 명확한 구분", "사용자 탐색 피로도 감소"] },
+  { id: 5, src: "/image/after-part5.png", title: "반응형 그리드",         desc: ["다양한 디바이스 최적화", "일관된 브랜드 경험 유지"] },
+  { id: 6, src: "/image/after-part6.png", title: "미니멀 네비게이션",     desc: ["불필요한 노이즈 제거", "필수 정보 그룹화 재정의"] },
+];
 
-  // useEffect(() => {
-  //   // 여기에 GSAP 타임라인 로직이 들어갑니다.
-  // }, []);
+const ANIM_DURATION = 0.65;
+const COOLDOWN_MS   = 800;
+
+function AfterSection() {
+  const sectionRef = useRef(null);
+  const slidesRef  = useRef([]);
+  const dotsRef    = useRef([]);
+  const currentRef = useRef(0);
+  const isAnimRef  = useRef(false);
+
+  const goTo = (next, direction = 1) => {
+    if (isAnimRef.current) return;
+    const total = partData.length;
+    if (next < 0 || next >= total) return;
+
+    isAnimRef.current = true;
+    const prev = currentRef.current;
+    currentRef.current = next;
+
+    dotsRef.current.forEach((dot, i) => {
+      dot?.classList.toggle("active", i === next);
+    });
+
+    const slideOut = slidesRef.current[prev];
+    const slideIn  = slidesRef.current[next];
+
+    gsap.set(slideIn, { opacity: 0, y: direction > 0 ? 60 : -60 });
+    slideIn.classList.add("active");
+
+    gsap.to(slideOut, {
+      opacity: 0,
+      y: direction > 0 ? -60 : 60,
+      duration: ANIM_DURATION,
+      ease: "power2.inOut",
+      onComplete: () => {
+        gsap.set(slideOut, { y: 0 });
+        slideOut.classList.remove("active");
+      },
+    });
+
+    gsap.to(slideIn, {
+      opacity: 1,
+      y: 0,
+      duration: ANIM_DURATION,
+      ease: "power2.inOut",
+      onComplete: () => { isAnimRef.current = false; },
+    });
+  };
+
+  useEffect(() => {
+    const total = partData.length;
+
+    gsap.set(slidesRef.current[0], { opacity: 1, y: 0 });
+    slidesRef.current[0].classList.add("active");
+    dotsRef.current[0]?.classList.add("active");
+
+    // ── 진입 감지: currentIndex 동기화용 ──────────────────────────
+    const enterObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          window.dispatchEvent(new CustomEvent('section:enter', {
+            detail: { sectionId: 'after' },
+          }));
+        }
+      },
+      { threshold: 0, rootMargin: '0px 0px -99% 0px' }
+    );
+    enterObserver.observe(sectionRef.current);
+
+    let lastWheel = 0;
+
+    const onWheel = (e) => {
+      const rect = sectionRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const inView = rect.top <= 0 && rect.bottom >= window.innerHeight;
+      if (!inView) return;
+
+      const now       = Date.now();
+      const cur       = currentRef.current;
+      const goingDown = e.deltaY > 0;
+      const atFirst   = cur === 0;
+      const atLast    = cur === total - 1;
+
+      if (atFirst && !goingDown) {
+        window.dispatchEvent(new CustomEvent('section:escape', {
+          detail: { direction: -1, fromId: 'after' },
+        }));
+        return;
+      }
+      if (atLast && goingDown) {
+        window.dispatchEvent(new CustomEvent('section:escape', {
+          detail: { direction: 1, fromId: 'after' },
+        }));
+        return;
+      }
+
+      e.preventDefault();
+      if (now - lastWheel < COOLDOWN_MS) return;
+      lastWheel = now;
+      goTo(cur + (goingDown ? 1 : -1), goingDown ? 1 : -1);
+    };
+
+    window.addEventListener('wheel', onWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', onWheel);
+      enterObserver.disconnect();
+    };
+  }, []);
 
   return (
     <AfterSectionWrapper id="after" ref={sectionRef}>
-      {/* 1. GSAP ScrollTrigger의 기준점이 될 긴 컨테이너 */}
-      <div className="trigger-container" ref={triggerRef}>
-
-        {/* 2. 화면에 고정(pin)될 영역 */}
-        <div className="sticky-wrapper">
-
-          {/* 3. 레고 파트들이 조립될 무대 */}
-          <div className="build-stage">
-
-            {/* 파트 1: 브릭 아이덴티티 반영 (상단) */}
-            <div className="build-item part-header" ref={item1Ref}>
-              <img src="/image/after-part1.png" alt="Header & Visual" />
+      <div style={{ height: "100vh" }}>
+        <div className="sticky-viewport">
+          {partData.map((part, i) => (
+            <div
+              key={part.id}
+              className="slide"
+              ref={el => slidesRef.current[i] = el}
+              style={{ zIndex: i + 1 }}
+            >
+              <img src={part.src} alt={part.title} />
+              <div className="desc-box">
+                <span className="slide-num">{String(i + 1).padStart(2, "0")}</span>
+                <div className="divider" />
+                <div className="text">
+                  <h4>{part.title}</h4>
+                  <ul>
+                    {part.desc.map((line, j) => <li key={j}>{line}</li>)}
+                  </ul>
+                </div>
+                <span className="total">/ {String(partData.length).padStart(2, "0")}</span>
+              </div>
             </div>
+          ))}
 
-            {/* 파트 2: 디지털 아틀리에 컨셉 (중간) */}
-            <div className="build-item part-atelier" ref={item2Ref}>
-              <img src="/image/after-part2.png" alt="Digital Atelier" />
-            </div>
-
-            {/* 파트 3: 데이터 맥락화 (Best/New) */}
-            <div className="build-item part-data" ref={item3Ref}>
-              <img src="/image/after-part3.png" alt="Data Context" />
-            </div>
-
-            {/* 파트 4: 미니멀 네비게이션 (하단) */}
-            <div className="build-item part-footer" ref={item4Ref}>
-              <img src="/image/after-part4.png" alt="Footer Navigation" />
-            </div>
-
-            {/* 개선 포인트 1: 브릭 아이덴티티 */}
-            <div className="desc-box box-1 left-top" ref={box1Ref}>
-              <h4>브릭 아이덴티티 반영</h4>
-              <ul>
-                <li>레고 결합 모티프를 UI 컴포넌트에 적용하여 브랜드 개성 강화</li>
-                <li>풀 그리드 레이아웃으로 첫인상 및 몰입도 극대화</li>
-                <li>WebP 포맷 전환으로 고해상도 비주얼 유지 및 초기 로딩 속도 단축</li>
-              </ul>
-            </div>
-
-            {/* 개선 포인트 2: 디지털 아틀리에 */}
-            <div className="desc-box box-2 right-top" ref={box2Ref}>
-              <h4>디지털 아틀리에 컨셉</h4>
-              <ul>
-                <li>단순 나열을 탈피한 스토리텔링형 배치로 제품의 '작품성' 강조</li>
-                <li>대형 모델 이미지를 전면에 배치하여 주 타겟층(어린이/키덜트)의 관심 유도</li>
-                <li>미니멀한 텍스트 배치로 시선 분산을 방지하고 핵심 메시지에 집중</li>
-              </ul>
-            </div>
-
-            {/* 개선 포인트 3: 데이터 맥락화 */}
-            <div className="desc-box box-3 left-bottom" ref={box3Ref}>
-              <h4>데이터 맥락화</h4>
-              <ul>
-                <li>Best(스테디셀러)와 New(신제품)의 명확한 구분으로 탐색 피로도 감소</li>
-                <li>브릭 보드 도트 패턴 배경을 적용하여 섹션 간 테마 연결성 강화</li>
-                <li>사용자의 구매 의사결정 경로를 고려한 단순화된 정보 구조 설계</li>
-              </ul>
-            </div>
-
-            {/* 개선 포인트 4: 미니멀 네비게이션 */}
-            <div className="desc-box box-4 right-bottom" ref={box4Ref}>
-              <h4>미니멀 네비게이션</h4>
-              <ul>
-                <li>불필요한 노이즈를 제거하고 필수 정보 위주로 그룹화 재정의</li>
-                <li>법적 고지 및 고객 지원 메뉴의 가독성 개선으로 브랜드 신뢰도 확보</li>
-              </ul>
-            </div>
-
+          <div className="indicator">
+            {partData.map((_, i) => (
+              <div
+                key={i}
+                className="dot"
+                ref={el => dotsRef.current[i] = el}
+                onClick={() => goTo(i, i > currentRef.current ? 1 : -1)}
+              />
+            ))}
           </div>
         </div>
       </div>

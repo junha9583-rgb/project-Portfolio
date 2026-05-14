@@ -64,19 +64,32 @@ function EpilogueSection() {
   const fragmentsRef = useRef([]);
 
   useEffect(() => {
+    // 1. 휠 스크롤 시 튕김을 방지하기 위한 강제 위치 고정 설정
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
     const ctx = gsap.context(() => {
+      // 2. 타임라인 설정
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "+=200%", // 애니메이션 호흡을 길게 가져감
+          end: "+=200%",
           pin: true,
-          scrub: 1,
+          pinSpacing: true, //
+          scrub: 1, // 휠 관성과 부드럽게 동기화
+          anticipatePin: 1, // 핀 고정 시점의 오차 계산 방지
+          
+          // 3. 휠 스크롤 문제를 잡는 핵심 옵션들
+          fastScrollEnd: true,
+          preventOverlaps: true, // 이전 애니메이션과 겹침 방지
+          refreshPriority: 1,    // 이 섹션의 계산 우선순위를 높임
         }
       });
 
-      // 1. 초기 상태: 파편들을 랜덤한 위치와 각도로 흩뿌림
       fragmentsRef.current.forEach((frag) => {
+        if (!frag) return;
         gsap.set(frag, {
           x: gsap.utils.random(-500, 500),
           y: gsap.utils.random(-300, 300),
@@ -85,7 +98,6 @@ function EpilogueSection() {
         });
       });
 
-      // 2. 조립 애니메이션: 파편들이 중앙으로 모이며 선명해짐
       tl.to(fragmentsRef.current, {
         x: 0,
         y: 0,
@@ -94,28 +106,32 @@ function EpilogueSection() {
         stagger: 0.02,
         ease: "power2.inOut"
       })
-        // 3. 반전: 배경색이 딥블랙으로 변하며 글자가 강조됨
-        .to(sectionRef.current, {
-          backgroundColor: "#000",
-          duration: 0.5
-        }, "-=0.2")
-        .to(textRef.current, {
-          scale: 1.1,
-          filter: "drop-shadow(0 0 20px rgba(229, 9, 20, 0.5))", // 은은한 레드광
-          duration: 0.5
-        });
-    });
+      .to(sectionRef.current, {
+        backgroundColor: "#000",
+        duration: 0.5
+      }, "-=0.2")
+      .to(textRef.current, {
+        scale: 1.1,
+        filter: "drop-shadow(0 0 20px rgba(229, 9, 20, 0.5))",
+        duration: 0.5
+      });
+    }, sectionRef);
 
-    return () => ctx.revert();
+    // 4. 모든 섹션의 ScrollTrigger를 다시 계산하도록 유도 (중요)
+    // 이전 섹션(EtcSection)의 높이가 확정된 후 계산되어야 함
+    window.addEventListener("load", () => ScrollTrigger.refresh());
+    
+    return () => {
+      ctx.revert();
+      window.removeEventListener("load", () => ScrollTrigger.refresh());
+    };
   }, []);
 
   return (
-    <EpilogueWrapper ref={sectionRef}>
+    <EpilogueWrapper ref={sectionRef} id="epilogue"> {/* id 추가 */}
       <div className="background-grid" />
-
       <div className="assembly-stage">
         <h1 className="main-statement" ref={textRef}>
-          {/* 각 글자를 파편 객체로 분리 */}
           {"DESIGN OVER ART".split("").map((char, i) => (
             <span
               key={i}

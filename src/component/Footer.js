@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-const FooterWrapper = styled.footer`
+const FooterWrapper = styled.section`
   width: 100%;
   padding: 80px 10% 40px;
   background: #000;
@@ -42,11 +42,13 @@ const FooterWrapper = styled.footer`
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    gap: 5px;
 
     .label {
-      font-size: 0.7rem;
+      font-size: 0.8em;
       color: #e50914; /* 넷플릭스/레고 포인트 컬러 */
       font-weight: bold;
+      margin-top: 10px;
       margin-bottom: 6px;
       letter-spacing: 0.05em;
     }
@@ -70,7 +72,7 @@ const FooterWrapper = styled.footer`
     }
 
     .value {
-      font-size: 1.1rem;
+      font-size: 1em;
       color: #ccc;
       text-decoration: none;
       transition: color 0.2s ease;
@@ -129,7 +131,8 @@ const FooterWrapper = styled.footer`
 
 function Footer() {
   const [copied, setCopied] = useState(false);
-  const email = "your-email@gmail.com"; //
+  const email = "junha9583@naver.com";
+  const phone = "010-9526-0803";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(email);
@@ -146,20 +149,21 @@ function Footer() {
         </div>
 
         <div className="right-side">
-          {/* 이메일 복사 섹션 */}
           <div className="contact-item">
             <span className="label">EMAIL</span>
             <div className="copy-group" onClick={handleCopy}>
-              <span className="value">{email}</span>
               <button className="copy-btn">
                 {copied ? "COPIED!" : "COPY"}
               </button>
+              <span className="value">{email}</span>
             </div>
-          </div>
-
-          <div className="contact-item">
-            <span className="label">LINKEDIN</span>
-            <a href="https://linkedin.com/in/..." target="_blank" rel="noreferrer" className="value">In/Junha-Kim</a>
+            <span className="label">PHONE</span>
+            <div className="copy-group" onClick={handleCopy}>
+              <button className="copy-btn">
+                {copied ? "COPIED!" : "COPY"}
+              </button>
+              <span className="value">{phone}</span>
+            </div>
           </div>
         </div>
       </div>

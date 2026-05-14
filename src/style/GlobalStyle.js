@@ -17,7 +17,11 @@ export const GlobalStyle = createGlobalStyle`
   body {
     line-height: 1;
     font-size: 20px;
-    background-color: #000;
+    background: radial-gradient(
+      circle at 50% 50%, 
+    #1a1a1a 0%, 
+    #000000 100%
+    );
     color: #fff;
     overflow-x: hidden;
   }
@@ -35,6 +39,12 @@ export const GlobalStyle = createGlobalStyle`
 
   /* Common Style */
   [class$="inner"] {
+
+    section:not(#netflix) {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
 
     /* 태블릿 */
     @media (max-width: ${size.tablet}) {

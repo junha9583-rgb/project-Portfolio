@@ -1,148 +1,261 @@
 /* eslint-disable */
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// 1. 스타일 정의는 함수 "바깥"에 둡니다. (여기선 Ref를 쓰지 않습니다)
+gsap.registerPlugin(ScrollTrigger);
+
+const ANALYSIS_DATA = [
+  {
+    id: 1,
+    title: "브랜드 정체성과 괴리된 비주얼 및 불균형한 정보 구조(IA)",
+    desc: "정적 디자인으로 인한 브랜드 몰입도 및 유대감 저하, 정보 구조 파편화 및 링크 결손으로 인한 신뢰도 하락",
+    top: "10%",
+  },
+  {
+    id: 2,
+    title: "시선 집중 저해 및 정보 위계 미확립",
+    desc: "과도한 정보 배치, 모바일 환경에서의 렌더링 지연",
+    top: "20%",
+  },
+  {
+    id: 3,
+    title: "제한적인 카테고리 분류 및 탐색 편의성 결여",
+    desc: "탭 분류의 단순화로 인한 사용자 선택권 제약, 직관적이지 않은 명칭 사용으로 탐색 비용 증가",
+    top: "40%",
+  },
+  {
+    id: 4,
+    title: "데이터 시각화의 불균형 및 정보 과부하 초래",
+    desc: "텍스트 정보량 과다 및 비체계적인 레이아웃 배치, 일관성 없는 컬러 시스템으로 인한 시각적 피로도 상승",
+    top: "40%",
+  },
+  {
+    id: 5,
+    title: "콘텐츠 맥락 불일치 및 전환 유도 장치 부재",
+    desc: "섹션 타이틀과 실제 상품 데이터 간의 정렬성(Relevance) 부족, 프로모션(이벤트, 할인) 정보 누락으로 인한 구매 전환 기회 상실",
+    top: "30%",
+  },
+  {
+    id: 6,
+    title: "비효율적인 정보 구조(IA) 및 메뉴 그룹화 부재",
+    desc: "유사 맥락의 콘텐츠가 개별적으로 나열되어 불필요한 시각적 뎁스(Depth) 생성, 계층 구조 설계 미흡으로 인한 사용자 정보 인지 효율 저하",
+    top: "45%",
+  },
+];
+
 const BeforeSectionWrapper = styled.section`
   width: 100%;
-  height: 100vh;
-  background-color: #000;
-  overflow: hidden;
+  height: 500vh;
+  background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000000 100%);
   position: relative;
+`;
 
-  .sticky-wrapper {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+const StickyWrapper = styled.div`
+  width: 100%;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  pointer-events: none;
+`;
 
-  .visual-stage {
-    position: relative;
-    width: 1200px;
-    height: 800px;
-  }
-
-  .desc-box {
-    position: absolute;
-    width: 350px;
-    padding: 24px;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    z-index: 10;
-    opacity: 0; /* 초기값 0 */
-    
-    h4 { font-size: 1.1rem; color: #fff; margin-bottom: 12px; }
-    ul { list-style: none; li { font-size: 0.9rem; color: #ccc; } }
-  }
-
-  .left { left: -400px; }
-  .right { right: -400px; }
-  .point-1 { top: 10%; }
-  .point-2 { top: 15%; }
-  .point-3 { top: 40%; }
-  .point-4 { top: 45%; }
-  .point-5 { top: 70%; }
-  .point-6 { top: 75%; }
+const VisualStage = styled.div`
+  position: relative;
+  width: 1200px;
+  height: 800px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+  z-index: 100;
 
   .mac-mockup {
     position: relative;
     width: 100%;
-    img { width: 100%; }
+    z-index: 10;
+
+    .device-img {
+      width: 100%;
+      height: auto;
+      position: relative;
+      z-index: 100;
+      pointer-events: none;
+      display: block;
+    }
+
     .screen-mask {
       position: absolute;
-      top: 5.5%; left: 5.1%;
-      width: 89.8%; height: 83.5%;
+      top: 19%;
+      left: 7%;
+      width: 86%;
+      height: 53%;
+      z-index: 50;
       overflow: hidden;
-      background: #1a1a1a;
+      background: #000;
+
       .scrolling-content {
         width: 100%;
-        img { width: 100%; height: auto; display: block; }
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        img {
+          width: 100% !important;
+          height: auto;
+          display: block;
+          filter: brightness(0.8) blur(1.5px);
+        }
       }
     }
   }
 `;
 
-// 2. 메인 함수 컴포넌트
+const DescBox = styled.div`
+  position: absolute;
+  width: 500px;
+  padding: 30px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(15px);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  z-index: 150;
+  opacity: 0;
+  top: ${props => props.top};
+
+  h4 {
+    font-size: 1.4rem;
+    color: #e50914;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.2);
+    font-weight: 400;
+    line-height: 1.4;
+    word-break: keep-all;
+  }
+
+  p {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.8;
+    word-break: keep-all;
+    letter-spacing: -1px;
+    word-spacing: 1px;
+  }
+
+  &.left  { left: -120px;  text-align: left; }
+  &.right { right: -120px; text-align: left; }
+`;
+
 function BeforeSection() {
-  // ★ 중요 ★: Ref 정의는 반드시 여기(함수 내부)에 있어야 합니다.
-  const box1Ref = useRef(null);
-  const box2Ref = useRef(null);
-  const box3Ref = useRef(null);
-  const box4Ref = useRef(null);
-  const box5Ref = useRef(null);
-  const box6Ref = useRef(null);
+  const sectionRef = useRef(null);
   const contentRef = useRef(null);
+  const boxesRef   = useRef([]);
+
+  useEffect(() => {
+    const totalBoxes = boxesRef.current.length;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+      });
+
+      if (contentRef.current) {
+        const img = contentRef.current.querySelector('img');
+
+        tl.to(contentRef.current, {
+          y: () => {
+            const renderedImgHeight = img.getBoundingClientRect().height;
+            const maskHeight = contentRef.current.parentElement.offsetHeight;
+            return -(renderedImgHeight - maskHeight);
+          },
+          ease: "none",
+          duration: 1,
+        }, 0);
+
+        boxesRef.current.forEach((box, idx) => {
+          if (box) {
+            const appearAt    = idx * (1 / totalBoxes);
+            const stayDuration = (1 / totalBoxes) * 0.8;
+            const leaveAt     = appearAt + stayDuration;
+
+            tl.to(box, { opacity: 1, y: -20, duration: 0.02, immediateRender: false }, appearAt)
+              .to(box, { opacity: 0, y: -40, duration: 0.02 }, leaveAt);
+          }
+        });
+      }
+    }, sectionRef);
+
+    // 경계 감지: before 섹션 top/bottom에서 탈출 이벤트 발사
+    const onWheel = (e) => {
+      const el = sectionRef.current;
+      if (!el) return;
+      const { offsetTop, offsetHeight } = el;
+      const scroll = window.scrollY;
+
+      // before 섹션 안에 있을 때만
+      if (scroll < offsetTop - 5 || scroll > offsetTop + offsetHeight) return;
+
+      const atTop    = scroll <= offsetTop + 5;
+      const atBottom = scroll + window.innerHeight >= offsetTop + offsetHeight - 5;
+
+      if (e.deltaY < 0 && atTop) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('section:escape', {
+          detail: { direction: -1, fromId: 'before' },
+        }));
+      } else if (e.deltaY > 0 && atBottom) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('section:escape', {
+          detail: { direction: 1, fromId: 'before' },
+        }));
+      }
+    };
+
+    window.addEventListener('wheel', onWheel, { passive: false });
+
+    return () => {
+      ctx.revert();
+      window.removeEventListener('wheel', onWheel);
+    };
+  }, []);
 
   return (
-    <BeforeSectionWrapper id="before">
-      <div className="sticky-wrapper">
-        <div className="visual-stage">
-          
-          {/* 분석 포인트 박스들 */}
-          <div className="desc-box point-1 left" ref={box1Ref}>
-            <h4>브랜드 정체성과 괴리된 비주얼 및 불균형한 정보 구조(IA)</h4>
-            <ul>
-              <li>정적 디자인으로 인한 브랜드 몰입도 저하</li>
-              <li>정보 구조 파편화로 인한 신뢰도 하락</li>
-            </ul>
-          </div>
+    <BeforeSectionWrapper ref={sectionRef} id="before">
+      <StickyWrapper>
+        <VisualStage>
+          {ANALYSIS_DATA.map((item, idx) => (
+            <DescBox
+              key={item.id}
+              top={item.top}
+              className={idx % 2 === 0 ? 'left' : 'right'}
+              ref={el => (boxesRef.current[idx] = el)}
+            >
+              <h4>{item.title}</h4>
+              <p>{item.desc}</p>
+            </DescBox>
+          ))}
 
-          <div className="desc-box point-2 right" ref={box2Ref}>
-            <h4>시선 집중 저해 및 정보 위계 미확립</h4>
-            <ul>
-              <li>과도한 정보 배치로 인한 피로도 증가</li>
-              <li>모바일 환경의 렌더링 지연(LCP 7.2s)</li>
-            </ul>
-          </div>
-
-          <div className="desc-box point-3 left" ref={box3Ref}>
-            <h4>제한적인 카테고리 분류 및 탐색 편의성 결여</h4>
-            <ul>
-              <li>탭 분류의 단순화로 인한 선택권 제약</li>
-              <li>비직관적 명칭 사용으로 탐색 비용 증가</li>
-            </ul>
-          </div>
-
-          <div className="desc-box point-4 right" ref={box4Ref}>
-            <h4>데이터 시각화의 불균형 및 정보 과부하</h4>
-            <ul>
-              <li>텍스트 정보량 과다 및 비체계적 레이아웃</li>
-              <li>일관성 없는 컬러 시스템으로 인한 시각적 피로</li>
-            </ul>
-          </div>
-
-          <div className="desc-box point-5 left" ref={box5Ref}>
-            <h4>콘텐츠 맥락 불일치 및 전환 유도 부재</h4>
-            <ul>
-              <li>섹션 타이틀과 실제 데이터 간 정렬성 부족</li>
-              <li>프로모션 정보 누락으로 인한 전환 기회 상실</li>
-            </ul>
-          </div>
-
-          <div className="desc-box point-6 right" ref={box6Ref}>
-            <h4>비효율적 정보 구조 및 메뉴 그룹화 부재</h4>
-            <ul>
-              <li>불필요한 시각적 뎁스(Depth) 생성</li>
-              <li>명확한 영역 구분 부재로 탐색 피로도 증가</li>
-            </ul>
-          </div>
-
-          {/* 중앙 맥 목업 영역 */}
           <div className="mac-mockup">
-            <img src="/image/mac-device.png" alt="Mac Mockup" />
+            <img src="/image/MacMockup.png" className="device-img" alt="Mac Mockup" />
             <div className="screen-mask">
               <div className="scrolling-content" ref={contentRef}>
-                <img src="/image/lego-long-capture.jpg" alt="Current Site Analysis" />
+                <img src="/image/Current-lego-capture.png" alt="Analysis" />
               </div>
             </div>
           </div>
-
-        </div>
-      </div>
+        </VisualStage>
+      </StickyWrapper>
     </BeforeSectionWrapper>
   );
 }
