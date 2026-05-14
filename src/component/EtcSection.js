@@ -152,10 +152,34 @@ const EtcWrapper = styled.section`
 `;
 
 const projects = [
-  { id: 1, title: "한국도자기", category: "Hankook Chinaware", img: "/image/HankookChinaware.png", url: "https://junha9583-rgb.github.io/project-HankookChinaware/archive.html" },
-  { id: 2, title: "tvN", category: "즐거움엔 끝이 없다", img: "/image/Tvn.png", url: "https://junha9583-rgb.github.io/project-Tvn/" },
-  { id: 3, title: "네이버 클로바", category: "Naver Clova", img: "/image/NaverClova.png", url: "https://junha9583-rgb.github.io/project-NaverClova/" },
-  { id: 4, title: "Nike", category: "AirMax", img: "/image/Nike.png", url: "https://junha9583-rgb.github.io/project-Nike/" },
+  { 
+    id: 1, 
+    title: "한국도자기", 
+    category: "Hankook Chinaware", 
+    img: `${process.env.PUBLIC_URL}/image/HankookChinaware.webp`, 
+    url: "https://junha9583-rgb.github.io/project-HankookChinaware/archive.html" 
+  },
+  { 
+    id: 2, 
+    title: "tvN", 
+    category: "즐거움엔 끝이 없다", 
+    img: `${process.env.PUBLIC_URL}/image/Tvn.webp`, 
+    url: "https://junha9583-rgb.github.io/project-Tvn/" 
+  },
+  { 
+    id: 3, 
+    title: "네이버 클로바", 
+    category: "Naver Clova", 
+    img: `${process.env.PUBLIC_URL}/image/NaverClova.webp`, 
+    url: "https://junha9583-rgb.github.io/project-NaverClova/" 
+  },
+  { 
+    id: 4, 
+    title: "Nike", 
+    category: "AirMax", 
+    img: `${process.env.PUBLIC_URL}/image/Nike.webp`, 
+    url: "https://junha9583-rgb.github.io/project-Nike/" 
+  },
 ];
 
 function EtcSection() {

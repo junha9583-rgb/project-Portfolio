@@ -242,7 +242,7 @@ function NetflixSection() {
         <CenterWrap>
           <GroupBefore ref={beforeRef}>
             <ImgWrap>
-              <img src="/image/Netflix-search-before.png" alt="Before redesign" />
+              <img src={`${process.env.PUBLIC_URL}/image/Netflix-search-before.webp`} alt="Before redesign" />
               <ProblemLabel className="p-1">시각적 노이즈</ProblemLabel>
               <ProblemLabel className="p-2">경직된 탐색</ProblemLabel>
               <ProblemLabel className="p-3">텍스트 편향성</ProblemLabel>
@@ -250,7 +250,7 @@ function NetflixSection() {
           </GroupBefore>
           <GroupAfter ref={afterRef}>
             <ImgWrap>
-              <img src="/image/Netflix-search-after.png" alt="After redesign" />
+              <img src={`${process.env.PUBLIC_URL}/image/Netflix-search-after.webp`} alt="After redesign" />
             </ImgWrap>
             <DescBox className="nf-desc-1 box-1">
               <h4>시각적 집중도 강화</h4>

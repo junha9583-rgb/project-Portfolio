@@ -136,12 +136,12 @@ const AfterSectionWrapper = styled.section`
 `;
 
 const partData = [
-  { id: 1, src: "/image/after-part1.png", title: "브릭 아이덴티티 반영",  desc: ["레고 결합 모티프를 UI에 적용", "브랜드 개성 및 몰입도 강화"] },
-  { id: 2, src: "/image/after-part2.png", title: "디지털 아틀리에",       desc: ["스토리텔링형 제품 배치", "작품성을 강조한 비주얼"] },
-  { id: 3, src: "/image/after-part3.png", title: "인터랙티브 요소",       desc: ["마우스 호버 시 브릭 애니메이션", "생동감 넘치는 사용자 경험"] },
-  { id: 4, src: "/image/after-part4.png", title: "데이터 맥락화",         desc: ["Best/New 섹션의 명확한 구분", "사용자 탐색 피로도 감소"] },
-  { id: 5, src: "/image/after-part5.png", title: "반응형 그리드",         desc: ["다양한 디바이스 최적화", "일관된 브랜드 경험 유지"] },
-  { id: 6, src: "/image/after-part6.png", title: "미니멀 네비게이션",     desc: ["불필요한 노이즈 제거", "필수 정보 그룹화 재정의"] },
+  { id: 1, src: `${process.env.PUBLIC_URL}/image/after-part1.webp`, title: "브릭 아이덴티티 반영",   desc: ["레고 결합 모티프를 UI에 적용", "브랜드 개성 및 몰입도 강화"] },
+  { id: 2, src: `${process.env.PUBLIC_URL}/image/after-part2.webp`, title: "디지털 아틀리에",       desc: ["스토리텔링형 제품 배치", "작품성을 강조한 비주얼"] },
+  { id: 3, src: `${process.env.PUBLIC_URL}/image/after-part3.webp`, title: "인터랙티브 요소",       desc: ["마우스 호버 시 브릭 애니메이션", "생동감 넘치는 사용자 경험"] },
+  { id: 4, src: `${process.env.PUBLIC_URL}/image/after-part4.webp`, title: "데이터 맥락화",         desc: ["Best/New 섹션의 명확한 구분", "사용자 탐색 피로도 감소"] },
+  { id: 5, src: `${process.env.PUBLIC_URL}/image/after-part5.webp`, title: "반응형 그리드",         desc: ["다양한 디바이스 최적화", "일관된 브랜드 경험 유지"] },
+  { id: 6, src: `${process.env.PUBLIC_URL}/image/after-part6.webp`, title: "미니멀 네비게이션",     desc: ["불필요한 노이즈 제거", "필수 정보 그룹화 재정의"] },
 ];
 
 const ANIM_DURATION = 0.65;

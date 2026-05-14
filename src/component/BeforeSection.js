@@ -247,10 +247,10 @@ function BeforeSection() {
           ))}
 
           <div className="mac-mockup">
-            <img src="/image/MacMockup.png" className="device-img" alt="Mac Mockup" />
+            <img src={`${process.env.PUBLIC_URL}/image/MacMockup.webp`} className="device-img" alt="Mac Mockup" />
             <div className="screen-mask">
               <div className="scrolling-content" ref={contentRef}>
-                <img src="/image/Current-lego-capture.png" alt="Analysis" />
+                <img src={`${process.env.PUBLIC_URL}/image/Current-lego-capture.webp`} alt="Analysis" />
               </div>
             </div>
           </div>
